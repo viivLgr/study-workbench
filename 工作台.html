@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 我的学习工作台</title>
+<style>
+:root {
+  --bg: #f5f7fa;
+  --card-bg: #ffffff;
+  --text: #1a202c;
+  --text-secondary: #4a5568;
+  --text-muted: #718096;
+  --border: #e2e8f0;
+  --primary: #2563eb;
+  --primary-light: #dbeafe;
+  --primary-dark: #1e40af;
+  --accent: #f59e0b;
+  --accent-light: #fef3c7;
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.04);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --card-bg: #1e293b;
+  --text: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border: #334155;
+  --primary: #3b82f6;
+  --primary-light: #1e3a5f;
+  --primary-dark: #60a5fa;
+  --accent: #f59e0b;
+  --accent-light: #422006;
+  --success: #10b981;
+  --success-light: #064e3b;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  transition: background 0.3s, color 0.3s;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+/* 顶部标题栏 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-toggle {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: var(--shadow);
+}
+
+.theme-toggle:hover { transform: scale(1.1); }
+
+/* 统计栏 */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  padding: 16px;
+  border-radius: var(--radius);
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* 区块标题 */
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+}
+
+/* 今日卡片 */
+.today-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--primary);
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.today-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+}
+
+.today-badge {
+  display: inline-block;
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+}
+
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.doc-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.doc-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.tag-zh { background: var(--success-light); color: var(--success); }
+.tag-en { background: var(--accent-light); color: var(--accent); }
+.tag-date { background: var(--border); color: var(--text-secondary); }
+
+/* 一句话概览 */
+.overview-box {
+  background: var(--primary-light);
+  border-left: 4px solid var(--primary);
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 18px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.overview-box .label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-dark);
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* 可折叠区块 */
+.section-block {
+  border-top: 1px solid var(--border);
+  padding: 14px 0;
+}
+
+.section-block:last-child { border-bottom: 1px solid var(--border); }
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.section-header:hover { opacity: 0.8; }
+
+.section-label {
+  font-weight: 600;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.section-arrow {
+  transition: transform 0.2s;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.section-arrow.open { transform: rotate(90deg); }
+
+.section-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  padding-top: 0;
+}
+
+.section-content.open {
+  max-height: 2000px;
+  padding-top: 12px;
+}
+
+.section-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.section-content li {
+  padding: 6px 0;
+  padding-left: 20px;
+  position: relative;
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.section-content li::before {
+  content: "•";
+  position: absolute;
+  left: 6px;
+  color: var(--primary);
+  font-weight: bold;
+}
+
+.concept-item {
+  margin-bottom: 10px;
+  padding-left: 16px;
+  border-left: 3px solid var(--border);
+}
+
+.concept-term {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.concept-expl {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.review-text {
+  color: var(--text-secondary);
+  font-size: 15px;
+  line-height: 1.7;
+  font-style: italic;
+}
+
+/* 查看原文按钮 */
+.btn-original {
+  margin-top: 16px;
+  background: var(--card-bg);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-original:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state .icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.empty-state .hint {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* 历史文档区 */
+.history-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card-bg);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.search-box:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.filter-btn {
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.filter-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-item {
+  background: var(--card-bg);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.history-item:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.history-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.history-item-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text);
+}
+
+.history-item-overview {
+  color: var(--text-muted);
+  font-size: 14px;
+  margin-top: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-item-detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, margin 0.3s ease;
+}
+
+.history-item-detail.open {
+  max-height: 3000px;
+  margin-top: 14px;
+}
+
+/* 弹窗 */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.modal-overlay.show {
+  display: flex;
+}
+
+.modal {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  max-width: 700px;
+  width: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--text-muted);
+  line-height: 1;
+  padding: 0;
+}
+
+.modal-close:hover { color: var(--text); }
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+/* 移动端 */
+@media (max-width: 600px) {
+  .container { padding: 16px 12px 40px; }
+  .header h1 { font-size: 22px; }
+  .stats { grid-template-columns: 1fr; gap: 8px; }
+  .stat-card { padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .stat-number { font-size: 22px; }
+  .stat-label { margin-top: 0; }
+  .today-card { padding: 18px; }
+  .doc-title { font-size: 18px; }
+  .overview-box { font-size: 15px; }
+}
+
+/* 滚动条 */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- 顶部标题 -->
+  <div class="header">
+    <h1>📚 我的学习工作台</h1>
+    <button class="theme-toggle" onclick="toggleTheme()" title="切换主题">🌙</button>
+  </div>
+
+  <!-- 统计栏 -->
+  <div class="stats" id="stats"></div>
+
+  <!-- 今日学习 -->
+  <div class="section-title">🌟 今日学习</div>
+  <div id="todayContainer"></div>
+
+  <!-- 历史文档 -->
+  <div class="section-title" style="margin-top: 36px;">📖 历史文档</div>
+  <div class="history-toolbar">
+    <input type="text" class="search-box" id="searchBox" placeholder="🔍 搜索标题或关键词..." oninput="renderHistory()">
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">全部</button>
+    <button class="filter-btn" data-filter="zh" onclick="setFilter('zh')">中文</button>
+    <button class="filter-btn" data-filter="en" onclick="setFilter('en')">英文</button>
+  </div>
+  <div class="history-list" id="historyList"></div>
+</div>
+
+<!-- 原文弹窗 -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">原文</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ============================================
+// 数据区 —— 每次新增文档在此数组头部插入记录
+// ============================================
+const DOCUMENTS = [
+  {
+    id: "2026-07-27_示例_费曼学习法",
+    date: "2026-07-27",
+    title: "费曼学习法：最强学习法详解",
+    language: "zh",
+    source: "示例数据",
+    overview: "费曼学习法的核心是「以教代学」——能用最简单的语言把一个概念讲清楚，才算真正掌握它。",
+    keyPoints: [
+      "费曼学习法分四步：确定目标 → 模拟教学 → 发现盲区 → 简化提炼",
+      "检验掌握程度的唯一标准：能否用小学生听得懂的话解释清楚",
+      "发现的盲区正是学习的重点，要回到资料中针对性补漏",
+      "最终输出应是一份无需专业术语的「大白话」解释",
+      "相比被动阅读，主动输出能让记忆留存率从 10% 提升到 90%"
+    ],
+    concepts: [
+      {
+        term: "以教代学",
+        explanation: "不等你学会再去教别人，而是通过尝试教别人来驱动自己学会。教学是手段，学习才是目的。"
+      },
+      {
+        term: "盲区识别",
+        explanation: "当你卡壳、讲不下去的地方，就是你没有真正理解的地方。这些卡壳点比任何复习重点都准确。"
+      },
+      {
+        term: "知识留存率",
+        explanation: "学习金字塔理论：被动听讲仅留存 5%，而教给别人能留存 90%，差距源于主动输出的深度。"
+      }
+    ],
+    practice: [
+      "学完一个概念后，合上资料，对着空气（或一个想象中的小白）讲一遍",
+      "用录音/笔记记录你的讲解，标记所有卡壳和含糊的地方",
+      "针对卡壳点回查原始资料，直到能流畅讲清楚",
+      "把最终版本写成一段不带任何专业术语的文字，作为掌握的证明"
+    ],
+    review: "费曼学习法的价值不在「新颖」，而在「反直觉」——大多数人以为读懂了就是学会了，但只有输出环节才能戳破这种错觉。它最适合用于概念性强、容易自欺欺人的学习内容（如理论、原理）。对于实操类技能（如编程、写作），仍需配合大量练习。建议把它作为学习后的「验收关卡」，而不是学习过程的全部。",
+    originalText: "费曼学习法（Feynman Technique）以诺贝尔物理学奖得主理查德·费曼命名，是一种通过「教别人」来驱动自己学习的方法。\n\n核心思想：如果你不能用最简单的语言把一个概念解释清楚，说明你并没有真正理解它。\n\n四个步骤：\n1. 选择一个你想学习的概念，把它写在一张白纸顶部。\n2. 假装你要把这个概念教给一个完全不懂的新手（比如小学生），用你自己的话写下解释。不要照抄课本定义。\n3. 在解释过程中，你会遇到卡壳、讲不清的地方——这些就是你的「盲区」。回到原始资料，重新学习这些部分。\n4. 简化你的语言，去掉所有专业术语和复杂句式，直到解释像讲故事一样流畅自然。\n\n为什么有效：被动阅读会给人「我懂了」的错觉，但只有尝试输出时，大脑才会暴露出理解的漏洞。研究表明，教学/输出的知识留存率可达 90%，远高于听讲（5%）和阅读（10%）。"
+  }
+];
+
+// ============================================
+// 渲染逻辑
+// ============================================
+let currentFilter = 'all';
+
+function getTodayStr() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function formatDate(dateStr) {
+  // YYYY-MM-DD → M月D日
+  const parts = dateStr.split('-');
+  return `${parseInt(parts[1])}月${parseInt(parts[2])}日`;
+}
+
+function calcStats() {
+  const total = DOCUMENTS.length;
+  const today = getTodayStr();
+
+  // 连续学习天数
+  let streak = 0;
+  const dates = [...new Set(DOCUMENTS.map(d => d.date))].sort().reverse();
+  if (dates.length > 0) {
+    let checkDate = new Date(today);
+    for (let i = 0; i < 365; i++) {
+      const ds = checkDate.toISOString().slice(0, 10);
+      if (dates.includes(ds)) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else if (i === 0) {
+        // 今天没有，看昨天
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+  }
+
+  // 本周完成数
+  const now = new Date();
+  const weekStart = new Date(now);
+  weekStart.setDate(now.getDate() - now.getDay());
+  weekStart.setHours(0, 0, 0, 0);
+  const weekCount = DOCUMENTS.filter(d => new Date(d.date) >= weekStart).length;
+
+  return { total, streak, weekCount };
+}
+
+function renderStats() {
+  const { total, streak, weekCount } = calcStats();
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="stat-number">${total}</div><div class="stat-label">已学习文档</div></div>
+    <div class="stat-card"><div class="stat-number">${streak}</div><div class="stat-label">连续学习天数</div></div>
+    <div class="stat-card"><div class="stat-number">${weekCount}</div><div class="stat-label">本周完成</div></div>
+  `;
+}
+
+function renderDocDetail(doc, prefix) {
+  const conceptsHtml = doc.concepts.map(c =>
+    `<div class="concept-item"><div class="concept-term">${escapeHtml(c.term)}</div><div class="concept-expl">${escapeHtml(c.explanation)}</div></div>`
+  ).join('');
+
+  return `
+    <div class="overview-box">
+      <span class="label">📌 一句话概览</span>
+      ${escapeHtml(doc.overview)}
+    </div>
+
+    ${doc.keyPoints && doc.keyPoints.length ? `
+    <div class="section-block">
+      <div class="section-header" onclick="toggleSection('${prefix}-kp')">
+        <span class="section-label">🔑 核心要点</span>
+        <span class="section-arrow" id="${prefix}-kp-arrow">▶</span>
+      </div>
+      <div class="section-content" id="${prefix}-kp">
+        <ul>${doc.keyPoints.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
+      </div>
+    </div>` : ''}
+
+    ${doc.concepts && doc.concepts.length ? `
+    <div class="section-block">
+      <div class="section-header" onclick="toggleSection('${prefix}-cp')">
+        <span class="section-label">📖 关键概念解释</span>
+        <span class="section-arrow" id="${prefix}-cp-arrow">▶</span>
+      </div>
+      <div class="section-content" id="${prefix}-cp">
+        ${conceptsHtml}
+      </div>
+    </div>` : ''}
+
+    ${doc.practice && doc.practice.length ? `
+    <div class="section-block">
+      <div class="section-header" onclick="toggleSection('${prefix}-pr')">
+        <span class="section-label">🛠 实践要点</span>
+        <span class="section-arrow" id="${prefix}-pr-arrow">▶</span>
+      </div>
+      <div class="section-content" id="${prefix}-pr">
+        <ul>${doc.practice.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
+      </div>
+    </div>` : ''}
+
+    ${doc.review ? `
+    <div class="section-block">
+      <div class="section-header" onclick="toggleSection('${prefix}-rv')">
+        <span class="section-label">💡 我的点评</span>
+        <span class="section-arrow" id="${prefix}-rv-arrow">▶</span>
+      </div>
+      <div class="section-content" id="${prefix}-rv">
+        <div class="review-text">${escapeHtml(doc.review)}</div>
+      </div>
+    </div>` : ''}
+
+    <button class="btn-original" onclick="showOriginal('${doc.id}')">📄 查看原文</button>
+  `;
+}
+
+function renderToday() {
+  const container = document.getElementById('todayContainer');
+  const today = getTodayStr();
+  const todayDocs = DOCUMENTS.filter(d => d.date === today);
+
+  if (todayDocs.length === 0) {
+    container.innerHTML = `
+      <div class="today-card">
+        <div class="empty-state">
+          <div class="icon">📝</div>
+          <p>今天还没有学习文档</p>
+          <p class="hint">把文档发给我，我来帮你整理总结</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // 取今日最新一条
+  const doc = todayDocs[0];
+  const langLabel = doc.language === 'en' ? 'English' : '中文';
+  const langClass = doc.language === 'en' ? 'tag-en' : 'tag-zh';
+
+  container.innerHTML = `
+    <div class="today-card">
+      <span class="today-badge">今日 · ${formatDate(doc.date)}</span>
+      <div class="doc-header">
+        <div class="doc-title">${escapeHtml(doc.title)}</div>
+        <div class="doc-meta">
+          <span class="tag ${langClass}">${langLabel}</span>
+          ${doc.source ? `<span class="tag tag-date">${escapeHtml(doc.source)}</span>` : ''}
+        </div>
+      </div>
+      ${renderDocDetail(doc, 'today')}
+    </div>
+  `;
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  const search = document.getElementById('searchBox').value.toLowerCase().trim();
+  const today = getTodayStr();
+
+  let docs = DOCUMENTS.filter(d => d.date !== today); // 排除今日（已在首页）
+
+  // 语言筛选
+  if (currentFilter !== 'all') {
+    docs = docs.filter(d => d.language === currentFilter);
+  }
+
+  // 搜索
+  if (search) {
+    docs = docs.filter(d =>
+      d.title.toLowerCase().includes(search) ||
+      d.overview.toLowerCase().includes(search) ||
+      (d.keyPoints && d.keyPoints.some(p => p.toLowerCase().includes(search)))
+    );
+  }
+
+  // 按日期倒序
+  docs.sort((a, b) => b.date.localeCompare(a.date));
+
+  if (docs.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state" style="padding:40px 20px;">
+        <div class="icon">📭</div>
+        <p>${search || currentFilter !== 'all' ? '没有匹配的文档' : '还没有历史文档'}</p>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = docs.map((doc, i) => {
+    const langLabel = doc.language === 'en' ? 'EN' : '中';
+    const langClass = doc.language === 'en' ? 'tag-en' : 'tag-zh';
+    const prefix = `hist-${i}`;
+    return `
+      <div class="history-item" onclick="toggleHistoryItem('${prefix}')">
+        <div class="history-item-header">
+          <div style="flex:1;min-width:0;">
+            <div class="history-item-title">${escapeHtml(doc.title)}</div>
+            <div class="history-item-overview">${escapeHtml(doc.overview)}</div>
+          </div>
+          <div class="doc-meta">
+            <span class="tag ${langClass}">${langLabel}</span>
+            <span class="tag tag-date">${formatDate(doc.date)}</span>
+          </div>
+        </div>
+        <div class="history-item-detail" id="${prefix}-detail">
+          ${renderDocDetail(doc, prefix)}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleSection(id) {
+  const el = document.getElementById(id);
+  const arrow = document.getElementById(id + '-arrow');
+  if (el.classList.contains('open')) {
+    el.classList.remove('open');
+    arrow.classList.remove('open');
+  } else {
+    el.classList.add('open');
+    arrow.classList.add('open');
+  }
+}
+
+function toggleHistoryItem(prefix) {
+  const el = document.getElementById(`${prefix}-detail`);
+  if (el) el.classList.toggle('open');
+}
+
+function setFilter(filter) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filter === filter);
+  });
+  renderHistory();
+}
+
+function showOriginal(id) {
+  const doc = DOCUMENTS.find(d => d.id === id);
+  if (!doc) return;
+  document.getElementById('modalTitle').textContent = `原文 · ${doc.title}`;
+  document.getElementById('modalBody').textContent = doc.originalText || '（无原文内容）';
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal(event) {
+  if (!event || event.target.id === 'modalOverlay' || event.target.classList.contains('modal-close')) {
+    document.getElementById('modalOverlay').classList.remove('show');
+  }
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const newTheme = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', newTheme);
+  localStorage.setItem('theme', newTheme);
+  document.querySelector('.theme-toggle').textContent = newTheme === 'dark' ? '☀️' : '🌙';
+}
+
+// 初始化主题
+(function initTheme() {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.querySelector('.theme-toggle').textContent = '☀️';
+  }
+})();
+
+// ESC 关闭弹窗
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// 初始渲染
+renderStats();
+renderToday();
+renderHistory();
+</script>
+</body>
+</html>
